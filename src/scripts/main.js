@@ -3,3 +3,4 @@ import "./js/style";
 
 // подключаем js модули
 
+console.log("hello");

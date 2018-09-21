@@ -46,7 +46,7 @@ gulp.task("pug", () => {
 			locals: JSON.parse(fs.readFileSync('./content.json', 'utf8')), 
 			pretty: true 
 		}))
-		.on("error", gp.notify.onError(function(err) {
+		.on("error", gp.notify.onError((err) => {
 			return {
 				title: "Pug",
 				message: err.message
@@ -60,27 +60,31 @@ gulp.task("sass", () => {
   return gulp.src(srcPath.scss)
 		.pipe(gp.sourcemaps.init())
 		.pipe(gp.sass())
-		.on("error", gp.notify.onError(function(err) {
+		.on("error", gp.notify.onError((err) => {
 			return {
 				title: "Sass",
 				message: err.message
 			}
-		}))
+    }))
 		.pipe(gp.autoprefixer({
 			browsers: ["last 3 version", "> 1%", "ie 8", "ie 9"]
-		}))
-		.pipe(gp.sourcemaps.write())
+    }))
+    .pipe(gp.csso())
+    .pipe(gp.sourcemaps.write())
+    .pipe(gp.rename({
+      suffix: ".min",
+    }))
 		.pipe(gulp.dest(distPath.css))
 });
 
 // копирование шрифтов
-gulp.task("font:copy", function() {
+gulp.task("font:copy", () => {
   return gulp.src(srcPath.fonts)
     .pipe(gulp.dest(distPath.fonts))
 });
 
 // копирование img
-gulp.task("img:copy", function() {
+gulp.task("img:copy", () => {
   return gulp.src(srcPath.img)
     .pipe(gulp.dest(distPath.img))
 })
@@ -88,7 +92,7 @@ gulp.task("img:copy", function() {
 // спрайт из png 
 // использовать как <div class="icon-[imageName]"></div> 
 // scss импортируем в main.scss
-gulp.task('sprite:png', function() {
+gulp.task('sprite:png', () => {
   var spriteData = gulp.src(`${srcPath.sprite}**/*.png`)
   .pipe(gp.spritesmith({
     imgName: 'sprite.png',
@@ -103,7 +107,7 @@ gulp.task('sprite:png', function() {
 })
 
 // спрайт из svg
-gulp.task('sprite:svg', function() {
+gulp.task('sprite:svg', () => {
   return gulp.src(`${srcPath.sprite}**/*.svg`)
     .pipe(gp.svgmin({
       js2svg: {
@@ -135,14 +139,14 @@ gulp.task("clean", () => {
 });
 
 // слежка за изменениями в src и запуск задач
-gulp.task("watch", function() {
+gulp.task("watch", () => {
   gulp.watch(`${src}style/**/*.*`, gulp.series("sass"));
   gulp.watch(`${src}template/**/*.*`, gulp.series("pug"));
   gulp.watch(`${src}scripts/**/*.*`, gulp.series("js"));
 });
 
 // запуск сервера на dist и перезагрузка сервера при изменениях в dist
-gulp.task("serve", function() {
+gulp.task("serve", () => {
   bs.init({
     open: true,
     server: dist
